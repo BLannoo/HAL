@@ -7,12 +7,12 @@ clc
 %% Settings
 
 N = 1000; % Number of data points (~2sec per data point)
-scale = 1.1;
+scale = 1.2;
 seed = 2;
 
 kInitial = [0.1, 0.06, 0.007, 50, 4, 100, 0.1, 0.001, 0.001, 0.001, 1, 0.01];
 
-filename = sprintf('N%i_scale%.1f_theta%.2f.mat',N,scale,kInitial(1))
+filename = sprintf('N%i_scale%.1f_theta%.2f.mat',N,scale,kInitial(1));
 
 %% Get data
 
@@ -42,11 +42,9 @@ end
 
 set(findall(gcf,'-property','FontSize'),'FontSize',25)
 
-%% Calc analytic phase lengths
+%% Plot phase lengths
 
 [betaAnalytic,TAanalytic,TBanalytic] = analyticHAL(0.5:0.1:5);
-
-%% Plot phase lengths
 
 figure(1)
 clf

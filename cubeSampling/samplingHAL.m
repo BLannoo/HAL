@@ -24,4 +24,5 @@ end
 
 numWarning = sum(numPeaks<10);
 
-save(filename)
+[path, ~, ~] = fileparts(mfilename('fullpath'));
+save(strcat(path,'/data/',filename))
