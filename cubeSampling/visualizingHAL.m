@@ -7,12 +7,17 @@ clc
 %% Settings
 
 N = 1000; % Number of data points (~2sec per data point)
-scale = 1.2;
+scale = 1.1;
 seed = 2;
+dataSet = 2;
 
-kInitial = [0.1, 0.06, 0.007, 50, 4, 100, 0.1, 0.001, 0.001, 0.001, 1, 0.01];
+%     th   dm    km     ka   kb     kab  al   kma    da     db   dab  diss
+k = [[0.1, 0.06, 0.007, 50,  4,     100, 0.1, 0.001, 0.001, 0.001, 1, 0.01];
+     [1,   0.36, 100,   100, 25459, 100, 1,   2,     0.08,  0.28,  1, 0.01]];
 
-filename = sprintf('N%i_scale%.1f_theta%.2f.mat',N,scale,kInitial(1));
+filename = sprintf('N%i_scale%.1f_dataSet%i.mat',N,scale,dataSet);
+
+kInitial = k(dataSet,:);
 
 %% Get data
 
