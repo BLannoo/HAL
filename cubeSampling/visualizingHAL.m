@@ -7,7 +7,7 @@ clc
 %% Settings
 
 N = 1000; % Number of data points (~2sec per data point)
-scale = 1.1;
+scale = 2;
 seed = 2;
 
 %     th    dm     km     ka   kb     kab  al    kma    da     db     dab  diss
