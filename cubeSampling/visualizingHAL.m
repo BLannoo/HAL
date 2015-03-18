@@ -24,46 +24,44 @@ k = [[0.1,  0.06,  0.007, 50,  4,     100, 0.1,  0.001, 0.001, 0.001, 1,   0.01]
 
 %% Get data
 
-for dataSet = 1:size(k,1);
+for dataSet = 1:9;
 
-    filename = sprintf('N%i_scale%.1f_dataSet%i.mat',N,scale,dataSet);
+filename = sprintf('N%i_scale%.1f_dataSet%i.mat',N,scale,dataSet);
 
-    kInitial = k(dataSet,:);
+kInitial = k(dataSet,:);
 
-    if exist(filename,'file')
-        load(filename)
-    else
-        tic
-        [params,Aperiod,Bperiod,numPeaks,Amax,Amin,Bmax,Bmin,beta,numWarning] = samplingHAL(N,kInitial,scale,seed,filename);
-        toc
-    end
-
+if exist(filename,'file')
+    load(filename)
+else
+    tic
+    [params,Aperiod,Bperiod,numPeaks,Amax,Amin,Bmax,Bmin,beta,numWarning] = samplingHAL(N,kInitial,scale,seed,filename);
+    toc
 end
 
 %% sampling
 
-figure(4)
-clf
-
-for i1 = 1:12
-    subplot(3,4,i1)
-    loglog(params((numPeaks>9),i1),params((numPeaks>9),mod(i1,12)+1),'g.')
-    hold on
-    loglog(params((numPeaks<=9),i1),params((numPeaks<=9),mod(i1,12)+1),'r.')
-    loglog(kInitial(i1),kInitial(mod(i1,12)+1),'b*','markersize',10)
-    xlabel(sprintf('param%i',i1))
-    ylabel(sprintf('param%i',mod(i1,12)+1))
-    axis tight
-end
-
-set(findall(gcf,'-property','FontSize'),'FontSize',25)
+% figure(100+dataSet)
+% clf
+% 
+% for i1 = 1:12
+%     subplot(3,4,i1)
+%     loglog(params((numPeaks>9),i1),params((numPeaks>9),mod(i1,12)+1),'g.')
+%     hold on
+%     loglog(params((numPeaks<=9),i1),params((numPeaks<=9),mod(i1,12)+1),'r.')
+%     loglog(kInitial(i1),kInitial(mod(i1,12)+1),'b*','markersize',10)
+%     xlabel(sprintf('param%i',i1))
+%     ylabel(sprintf('param%i',mod(i1,12)+1))
+%     axis tight
+% end
+% 
+% set(findall(gcf,'-property','FontSize'),'FontSize',25)
 
 %% Plot phase lengths
 
-[betaAnalytic,TAanalytic,TBanalytic] = analyticHAL(0.5:0.1:5);
+[betaAnalytic,TAanalytic,TBanalytic] = analyticHAL(0.5:0.1:10);
 
 figure(1)
-clf
+subplot(3,3,dataSet)
 hold all
 
 semilogx(betaAnalytic,TAanalytic,'b-','linewidth',5)
@@ -72,14 +70,13 @@ semilogx(betaAnalytic,TAanalytic+TBanalytic,'k-','linewidth',5)
 
 semilogx(beta(numPeaks>9),Aperiod(numPeaks>9).*params(numPeaks>9,2)','b.')
 semilogx(beta(numPeaks>9),Bperiod(numPeaks>9).*params(numPeaks>9,2)','g.')
-semilogx(beta(numPeaks>9),Aperiod(numPeaks>9).*params(numPeaks>9,2)'+Bperiod(numPeaks>9).*params(numPeaks>9,2)','k.')
+semilogx(beta(numPeaks>9),(Aperiod(numPeaks>9)+Bperiod(numPeaks>9)).*params(numPeaks>9,2)','k.')
 
-axis([min(beta(numPeaks>9)) max(beta(numPeaks>9)) 0 5])
+axis([0 5 0 10])
 
-legend('length A phase','length B phase','period', ...
-    'length A phase','length B phase','period')
+%legend('length A phase','length B phase','period','length A phase','length B phase','period')
 
-title('Comparison phase lengths')
+title(sprintf('(warnings=%i)',numWarning))
 xlabel('beta')
 ylabel('period')
 
@@ -88,19 +85,19 @@ set(findall(gcf,'-property','MarkerSize'),'MarkerSize',25)
 
 %% Plot Amplitude distributions
 
-figure(2)
-clf
-subplot(1,3,1)
-boxplot([Amax(numPeaks>9);Bmax(numPeaks>9)]','labels',{'A','B'})
-title('max value')
-subplot(1,3,2)
-boxplot([Amin(numPeaks>9);Bmin(numPeaks>9)]','labels',{'A','B'})
-title('min value')
-subplot(1,3,3)
-boxplot([Amax(numPeaks>9)-Amin(numPeaks>9);Bmax(numPeaks>9)-Bmin(numPeaks>9)]','labels',{'A','B'})
-title('abs amplitude')
-
-set(findall(gcf,'-property','FontSize'),'FontSize',25)
+% figure(2)
+% clf
+% subplot(1,3,1)
+% boxplot([Amax(numPeaks>9);Bmax(numPeaks>9)]','labels',{'A','B'})
+% title('max value')
+% subplot(1,3,2)
+% boxplot([Amin(numPeaks>9);Bmin(numPeaks>9)]','labels',{'A','B'})
+% title('min value')
+% subplot(1,3,3)
+% boxplot([Amax(numPeaks>9)-Amin(numPeaks>9);Bmax(numPeaks>9)-Bmin(numPeaks>9)]','labels',{'A','B'})
+% title('abs amplitude')
+% 
+% set(findall(gcf,'-property','FontSize'),'FontSize',25)
 
 %% Plot coefficient of variation
 
@@ -108,6 +105,7 @@ CV = @(x) std(x(numPeaks>9))./mean(x(numPeaks>9));
 
 CV_Aperiod = CV(Aperiod);
 CV_Bperiod = CV(Bperiod);
+CV_period = CV(Aperiod+Bperiod);
 CV_beta = CV(beta);
 
 CV_par = [];
@@ -116,11 +114,14 @@ for i1 = 1:12
 end
 
 figure(3)
-clf
+subplot(3,3,dataSet)
 boxplot([CV_Aperiod+zeros(size(CV_par));CV_Bperiod+zeros(size(CV_par));...
-    CV_par;CV_beta+zeros(size(CV_par))]', ...
-    'labels',{'length A phase','length B phase','params','beta'})
+    CV_period+zeros(size(CV_par));CV_par;CV_beta+zeros(size(CV_par))]' ...
+    ... ,'labels',{'length A phase','length B phase','period','params','beta'} ...
+    )
 
 ylabel('CV')
 
 set(findall(gcf,'-property','FontSize'),'FontSize',25)
+
+end
