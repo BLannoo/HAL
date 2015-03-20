@@ -9,7 +9,6 @@ dxdt = @(~,x,k) ...
     k(5) - k(10) * x(4) - k(6)*x(3)*x(4) + k(12)*x(5) ; ...
     k(6)*x(3)*x(4) - k(12)*x(5) - k(11)*x(5)];
 
-%         theta thresh muM    dM    muA  gamma muB
 params = [0.01, 0.05,  2,     25,  100,  1000, 0.01, 0.001, 0.001, 0.001, 1,   0.001];
 
 [time, conc] = ode23tb(@(t,x)dxdt(t,x,params),[0 1000],[1 0 0 0 0]);
