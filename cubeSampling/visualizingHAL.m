@@ -6,7 +6,7 @@ clc
 
 %% Settings
 
-N = 1000; % Number of data points (~2sec per data point)
+N = 10000; % Number of data points (~2sec per data point)
 scale = 2;
 seed = 2;
 
@@ -37,7 +37,7 @@ k = [[0.1,  0.06,  0.007, 50,  4,     100, 0.1,  0.001, 0.001, 0.001, 1,   0.01]
 
 dataSets = size(k,1)-8:size(k,1);
 
-for i2 = 1:9
+for i2 = 9
     dataSet = dataSets(i2);
 
 filename = sprintf('N%i_scale%.1f_dataSet%i.mat',N,scale,dataSet);
@@ -75,27 +75,29 @@ end
 [betaAnalytic,TAanalytic,TBanalytic] = analyticHAL(0.5:0.1:20);
 
 figure(i2)
+clf
 %subplot(3,3,i2)
+
+plot(betaAnalytic,TAanalytic,'b-','linewidth',3)
 hold all
+plot(betaAnalytic,TBanalytic,'g-','linewidth',3)
+plot(betaAnalytic,TAanalytic+TBanalytic,'k-','linewidth',3)
 
-semilogx(betaAnalytic,TAanalytic,'b-','linewidth',3)
-semilogx(betaAnalytic,TBanalytic,'g-','linewidth',3)
-semilogx(betaAnalytic,TAanalytic+TBanalytic,'k-','linewidth',3)
-
-semilogx(beta(numPeaks>9),Aperiod(numPeaks>9).*params(numPeaks>9,2)','b.')
-semilogx(beta(numPeaks>9),Bperiod(numPeaks>9).*params(numPeaks>9,2)','g.')
-semilogx(beta(numPeaks>9),(Aperiod(numPeaks>9)+Bperiod(numPeaks>9)).*params(numPeaks>9,2)','k.')
+plot(beta(numPeaks>9),Aperiod(numPeaks>9).*params(numPeaks>9,2)','b.')
+plot(beta(numPeaks>9),Bperiod(numPeaks>9).*params(numPeaks>9,2)','g.')
+plot(beta(numPeaks>9),(Aperiod(numPeaks>9)+Bperiod(numPeaks>9)).*params(numPeaks>9,2)','k.')
 
 axis([0 10 0 20])
 
-%legend('length A phase','length B phase','period','length A phase','length B phase','period')
+legend('length A phase','length B phase','period','length A phase','length B phase','period')
 
 title(sprintf('(warnings=%i)',numWarning))
+title('Matching of the different phases between numerical and analytical data')
 xlabel('beta')
 ylabel('period')
 
 set(findall(gcf,'-property','FontSize'),'FontSize',25)
-set(findall(gcf,'-property','MarkerSize'),'MarkerSize',15)
+set(findall(gcf,'-property','MarkerSize'),'MarkerSize',10)
 
 %% Plot Amplitude distributions
 
