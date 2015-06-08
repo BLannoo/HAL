@@ -25,18 +25,24 @@ N = length(per);
 data = log([k' ; per]);
 data = data - mean(data,2)*ones(1,N);
 data = data ./ (std(data,0,2)*ones(1,N));
-[eigVec, ~, eigVal] = princomp(data');
 
-n = eigVal(1).*eigVec(:,1);
+covarianceMat = cov(data');
+[V,D] = eig(covarianceMat);
+%[eigVec, ~, eigVal] = pca(data');
+
+n = D(1,1).*V(1:end-1,1);
 
 p = prod(k .^ (ones(N,1) * n'),2);
 
 figure(1)
 clf
-loglog(p,per,'.')
-corr(p,per')
+plot(p,per,'.')
+xlabel('P')
+ylabel('period*\delta_m')
+axis([min(p) max(p) 0 max(per)])
 
 figure(2)
 clf
-loglog(beta.^-1,per,'.')
-corr(beta.^-1,per')
+plot(beta,per,'.')
+xlabel('beta')
+ylabel('period')
