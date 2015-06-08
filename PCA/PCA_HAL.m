@@ -4,45 +4,36 @@ clear all
 close all
 clc
 
+% Getting the basic data (rates and period)
 load('N1000_scale2.0_dataSet20.mat','params','Aperiod','Bperiod')
 period = (Aperiod+Bperiod).*params(:,2)';
 clear Aperiod Bperiod
 
+% Eliminating non-oscillatory data points
 k = params(period>0,:);
-beta = k(:,1).*k(:,3).*k(:,4)./(k(:,5).*k(:,2).^2);
 per = period(period>0);
+data = [k' ; per];
 clear period params
 
 N = length(per);
 
-%% Permute the measured periods randomly to break the correlation
-% To test the algorithm on a similar non-correlated data set
+% moving analysis to the log-scale
+data = log(data);
 
-%per = per(randperm(N));
-
-%%
-
-data = log([k' ; per]);
-data = data - mean(data,2)*ones(1,N);
-data = data ./ (std(data,0,2)*ones(1,N));
-
+% calculating the covariance matrix
 covarianceMat = cov(data');
+
+% Getting the smallest eigenvector
 [V,D] = eig(covarianceMat);
-%[eigVec, ~, eigVal] = pca(data');
+n = D(1,1).*V(1:end-1,1)
 
-n = D(1,1).*V(1:end-1,1);
-
+% Calculating the predicting parameter (previously known as beta)
 p = prod(k .^ (ones(N,1) * n'),2);
 
+% Checking the result
 figure(1)
 clf
 plot(p,per,'.')
 xlabel('P')
 ylabel('period*\delta_m')
 axis([min(p) max(p) 0 max(per)])
-
-figure(2)
-clf
-plot(beta,per,'.')
-xlabel('beta')
-ylabel('period')
