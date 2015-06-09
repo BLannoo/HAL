@@ -1,6 +1,6 @@
 %% Script containing a collection of functions connected to the HAL model
 classdef HAL<handle
-    properties %(SetAccess = private)
+    properties
         % Defining
         k % parameters
         
@@ -26,6 +26,23 @@ classdef HAL<handle
     properties (Dependent)
         beta
         period
+    end
+    methods(Static)
+        function f = dxdt(x,k)
+            f = [k(1)*(1-x(1)) - k(7)*x(1)*x(3) ; ...
+                k(3)*x(1) + k(8) * (1-x(1)) - k(2)*x(2) ; ...
+                k(4)*x(2) - k(9)*x(3) - k(6)*x(3)*x(4) + k(12)*x(5) + k(1)*(1-x(1)) - k(7)*x(1)*x(3) ; ...
+                k(5) - k(10) * x(4) - k(6)*x(3)*x(4) + k(12)*x(5) ; ...
+                k(6)*x(3)*x(4) - k(12)*x(5) - k(11)*x(5)];
+        end
+        
+        function J = jac(x,k)
+            J = [-k(1)-k(7)*x(3), 0    , -k(7)*x(1)               , 0               , 0           ; ...
+                 k(3)-k(8)      , -k(2), 0                        , 0               , 0           ; ...
+                 -k(1)-k(7)*x(3), k(4) , -k(9)-k(6)*x(4)-k(7)*x(1), -k(6)*x(3)      , k(12)       ; ...
+                 0              , 0    , -k(6)*x(4)               , -k(10)-k(6)*x(3), k(12)       ; ...
+                 0              , 0    , k(6)*x(4)                , k(6)*x(3)       , -k(12)-k(11)];
+        end
     end
     methods
         %% A standard constructor with fixed k
@@ -55,14 +72,10 @@ classdef HAL<handle
         end
         %% Solve this equation
         function solve(obj)
-            equ = @(x,k)[k(1)*(1-x(1)) - k(7)*x(1)*x(3) ; ...
-                k(3)*x(1) + k(8) * (1-x(1)) - k(2)*x(2) ; ...
-                k(4)*x(2) - k(9)*x(3) - k(6)*x(3)*x(4) + k(12)*x(5) ...
-                    + k(1)*(1-x(1)) - k(7)*x(1)*x(3) ; ...
-                k(5) - k(10) * x(4) - k(6)*x(3)*x(4) + k(12)*x(5) ; ...
-                k(6)*x(3)*x(4) - k(12)*x(5) - k(11)*x(5)];
             if isempty(obj.track)
-                obj.track = ode23tb(@(t,x)equ(x,obj.k),[0 obj.tEnd],obj.x0);
+                k_local = obj.k;
+                options = odeset('Jacobian',@(~,x)HAL.jac(x,k_local));
+                obj.track = ode23tb(@(~,x)HAL.dxdt(x,k_local),[0 obj.tEnd],obj.x0,options);
             else
                 obj.track = odextend(obj.track,[],obj.tEnd);
             end
@@ -74,7 +87,7 @@ classdef HAL<handle
         %% Get period
         function period = get.period(obj)
             period = obj.phaseA + obj.phaseB;
-        end 
+        end
     end
     methods(Access=private)
         %% Calculate period
@@ -85,12 +98,12 @@ classdef HAL<handle
             AtoB = obj.track.x(diff(phase)==1);
             % list of transition times from B phase to A phase
             BtoA = obj.track.x(diff(phase)==-1);
-
+            
             % if unequal periods of A and B remove one
             if length(BtoA) < length(AtoB)
                 AtoB(end) = [];
             end
-
+            
             obj.numPer = length(AtoB);
             
             % break the evaluation if to little periods found
@@ -100,11 +113,11 @@ classdef HAL<handle
             else
                 obj.toFewPer = 0;
             end
-
+            
             % estimate the length of the B phase by the last 5 instances
             Bphases = BtoA-AtoB;
             obj.phaseB = mean(Bphases(end-5:end));
-
+            
             % estimate the length of the A phase by the last 5 instances
             Aphases = AtoB(2:end)-BtoA(1:end-1);
             obj.phaseA = mean(Aphases(end-5:end));

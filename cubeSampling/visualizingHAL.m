@@ -2,7 +2,6 @@
 
 clear all
 close all
-clc
 
 %% Settings
 
