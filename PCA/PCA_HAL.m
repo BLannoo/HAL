@@ -1,5 +1,4 @@
 %% PCA HAL cube sampling
-
 clear all
 close all
 clc
@@ -12,28 +11,49 @@ clear Aperiod Bperiod
 % Eliminating non-oscillatory data points
 k = params(period>0,:);
 per = period(period>0);
-data = [k' ; per];
-clear period params
 
-N = length(per);
-
-% moving analysis to the log-scale
-data = log(data);
-
-% calculating the covariance matrix
-covarianceMat = cov(data');
-
-% Getting the smallest eigenvector
-[V,D] = eig(covarianceMat);
-n = D(1,1).*V(1:end-1,1)
-
-% Calculating the predicting parameter (previously known as beta)
-p = prod(k .^ (ones(N,1) * n'),2);
+[param,exponents,spearmanCorr] = GRN_tools.PCA(k,per);
 
 % Checking the result
-figure(1)
+figure(2)
 clf
-plot(p,per,'.')
+plot(param,per,'.')
 xlabel('P')
 ylabel('period*\delta_m')
-axis([min(p) max(p) 0 max(per)])
+axis([min(param) max(param) 0 max(per)])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
