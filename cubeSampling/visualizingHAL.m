@@ -6,7 +6,7 @@ clc
 
 %% Settings
 
-N = 10000; % Number of data points (~2sec per data point)
+N = 100; % Number of data points (~2sec per data point)
 scale = 2;
 seed = 2;
 
@@ -35,22 +35,19 @@ k = [[0.1,  0.06,  0.007, 50,  4,     100, 0.1,  0.001, 0.001, 0.001, 1,   0.01]
 
 %% Get data
 
-dataSets = size(k,1)-8:size(k,1);
-
-for i2 = 9
-    dataSet = dataSets(i2);
+dataSet = 20;
 
 filename = sprintf('N%i_scale%.1f_dataSet%i.mat',N,scale,dataSet);
 
 kInitial = k(dataSet,:);
 
-if exist(filename,'file')
-    load(filename)
-else
+% if exist(filename,'file')
+%     load(filename)
+% else
     tic
     [params,Aperiod,Bperiod,numPeaks,Amax,Amin,Bmax,Bmin,beta,numWarning] = samplingHAL(N,kInitial,scale,seed,filename);
     toc
-end
+% end
 
 %% sampling
 
@@ -74,9 +71,8 @@ end
 
 [betaAnalytic,TAanalytic,TBanalytic] = analyticHAL(0.5:0.1:20);
 
-figure(i2)
+figure(1)
 clf
-%subplot(3,3,i2)
 
 plot(betaAnalytic,TAanalytic,'b-','linewidth',3)
 hold all
@@ -139,5 +135,3 @@ set(findall(gcf,'-property','MarkerSize'),'MarkerSize',10)
 % ylabel('CV')
 % 
 % set(findall(gcf,'-property','FontSize'),'FontSize',25)
-
-end
