@@ -12,7 +12,8 @@ clear Aperiod Bperiod
 k = params(period>0,:);
 per = period(period>0);
 
-[param,exponents,spearmanCorr] = GRN_tools.PCA(k,per);
+pca = GRN_tools('PCA');
+[param,exponents,spearmanCorr] = pca(k,per);
 
 % Checking the result
 figure(2)
