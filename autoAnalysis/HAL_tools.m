@@ -30,10 +30,10 @@ end
 end
 
 %% Extract k's
-function k = extractK(models)
-k = zeros(length(models),length(models(1).k));
-for ii = 1:length(models)
-    k(ii,:) = models(ii).k;
+function k = extractK(modelSelection)
+k = zeros(length(modelSelection),length(modelSelection(1).k));
+for ii = 1:length(modelSelection)
+    k(ii,:) = modelSelection(ii).k;
 end
 end
 
